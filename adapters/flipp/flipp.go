@@ -161,20 +161,20 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
 	bidResponse.Currency = DEFAULT_CURRENCY
-	decision := campaignResponseBody.Decisions.Inline[0]
-	b := &adapters.TypedBid{
-		Bid: &openrtb2.Bid{
-			CrID:  fmt.Sprint(decision.CreativeID),
-			Price: *decision.Prebid.Cpm,
-			AdM:   *decision.Prebid.Creative,
-			ID:    fmt.Sprint(decision.AdID),
-			W:     decision.Contents[0].Data.Width,
-			H:     decision.Contents[0].Data.Height,
-		},
-		BidType: openrtb_ext.BidType(BANNER_TYPE),
+	for _, decision := range campaignResponseBody.Decisions.Inline {
+		b := &adapters.TypedBid{
+			Bid: &openrtb2.Bid{
+				CrID:  fmt.Sprint(decision.CreativeID),
+				Price: *decision.Prebid.Cpm,
+				AdM:   *decision.Prebid.Creative,
+				ID:    fmt.Sprint(decision.AdID),
+				W:     decision.Contents[0].Data.Width,
+				H:     decision.Contents[0].Data.Height,
+			},
+			BidType: openrtb_ext.BidType(BANNER_TYPE),
+		}
+		bidResponse.Bids = append(bidResponse.Bids, b)
 	}
-
-	bidResponse.Bids = append(bidResponse.Bids, b)
 	return bidResponse, nil
 }
 
