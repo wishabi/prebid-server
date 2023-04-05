@@ -41,14 +41,15 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.E
 
 	for _, imp := range request.Imp {
 		var flippExtParams openrtb_ext.ImpExtFlipp
-		params, _, _, err := jsonparser.Get(imp.Ext, "prebid", "bidder", FLIPP_BIDDER)
+		params, _, _, err := jsonparser.Get(imp.Ext, "bidder")
 		if err != nil {
-			return nil, []error{err}
+			return nil, []error{fmt.Errorf("flipp params not found. %v", err)}
 		}
 		err = json.Unmarshal(params, &flippExtParams)
 		if err != nil {
-			return nil, []error{err}
+			return nil, []error{fmt.Errorf("Unable to extract flipp params. %v", err)}
 		}
+
 		publisherUrl, err := url.Parse(request.Site.Page)
 		if err != nil {
 			return nil, []error{err}
@@ -60,6 +61,7 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.E
 			Height:                  &imp.Banner.Format[0].H,
 			Width:                   &imp.Banner.Format[0].W,
 		}
+
 		contentCode := publisherUrl.Query().Get("flipp-content-code")
 		placement := Placement{
 			DivName: INLINE_DIV_NAME,
@@ -124,7 +126,6 @@ func (a *adapter) makeRequest(request *openrtb2.BidRequest, campaignRequestBody 
 	headers := http.Header{}
 	headers.Add("Content-Type", "application/json")
 	headers.Add("User-Agent", request.Device.UA)
-	headers.Add("X-Forwarded-For", request.Device.IP)
 	return &adapters.RequestData{
 		Method:  "POST",
 		Uri:     a.endpoint,
@@ -168,6 +169,7 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 				ID:    fmt.Sprint(decision.AdID),
 				W:     decision.Contents[0].Data.Width,
 				H:     decision.Contents[0].Data.Height,
+				ImpID: fmt.Sprint(decision.AdvertiserID),
 			},
 			BidType: openrtb_ext.BidType(BANNER_TYPE),
 		}
