@@ -38,83 +38,19 @@ func Builder(bidderName openrtb_ext.BidderName, config config.Adapter, server co
 
 func (a *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.ExtraRequestInfo) ([]*adapters.RequestData, []error) {
 	adapterRequests := make([]*adapters.RequestData, 0, len(request.Imp))
+	var errors []error
 
 	for _, imp := range request.Imp {
-		var flippExtParams openrtb_ext.ImpExtFlipp
-		params, _, _, err := jsonparser.Get(imp.Ext, "bidder")
+		adapterReq, err := a.processImp(request, imp)
 		if err != nil {
-			return nil, []error{fmt.Errorf("flipp params not found. %v", err)}
-		}
-		err = json.Unmarshal(params, &flippExtParams)
-		if err != nil {
-			return nil, []error{fmt.Errorf("Unable to extract flipp params. %v", err)}
-		}
-
-		publisherUrl, err := url.Parse(request.Site.Page)
-		if err != nil {
-			return nil, []error{err}
-		}
-		prebidRequest := PrebidRequest{
-			CreativeType:            &flippExtParams.CreativeType,
-			PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
-			RequestID:               &request.ID,
-			Height:                  &imp.Banner.Format[0].H,
-			Width:                   &imp.Banner.Format[0].W,
-		}
-
-		contentCode := publisherUrl.Query().Get("flipp-content-code")
-		placement := Placement{
-			DivName: INLINE_DIV_NAME,
-			SiteID:  &flippExtParams.SiteID,
-			AdTypes: getAdTypes(flippExtParams.CreativeType),
-			ZoneIds: flippExtParams.ZoneIds,
-			Count:   &COUNT,
-			Prebid:  &prebidRequest,
-			Properties: &Properties{
-				ContentCode: &contentCode,
-			},
-		}
-
-		var userKey string
-		if request.User != nil && request.User.ID != "" {
-			userKey = request.User.ID
-		} else if flippExtParams.UserKey != "" {
-			userKey = flippExtParams.UserKey
-		} else {
-			uid, err := uuid.NewV4()
-			if err != nil {
-				return nil, []error{err}
-			}
-			userKey = uid.String()
-		}
-
-		keywordsArray := strings.Split(request.Site.Keywords, ",")
-		var keywordsSlice []Keyword
-
-		for _, k := range keywordsArray {
-			keywordsSlice = append(keywordsSlice, Keyword(k))
-		}
-
-		campaignRequestBody := CampaignRequestBody{
-			Placements: []*Placement{&placement},
-			URL:        request.Site.Page,
-			Keywords:   keywordsSlice,
-			IP:         request.Device.IP,
-			User: &CampaignRequestBodyUser{
-				Key: &userKey,
-			},
-		}
-
-		adapterReq, err := a.makeRequest(request, campaignRequestBody)
-		if err != nil {
-			return nil, []error{err}
+			errors = append(errors, err)
 		}
 
 		if adapterReq != nil {
 			adapterRequests = append(adapterRequests, adapterReq)
 		}
 	}
-	return adapterRequests, nil
+	return adapterRequests, errors
 }
 
 func (a *adapter) makeRequest(request *openrtb2.BidRequest, campaignRequestBody CampaignRequestBody) (*adapters.RequestData, error) {
@@ -132,6 +68,83 @@ func (a *adapter) makeRequest(request *openrtb2.BidRequest, campaignRequestBody 
 		Body:    campaignRequestBodyJSON,
 		Headers: headers,
 	}, err
+}
+
+func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*adapters.RequestData, error) {
+	var flippExtParams openrtb_ext.ImpExtFlipp
+	params, _, _, err := jsonparser.Get(imp.Ext, "bidder")
+	if err != nil {
+		return nil, fmt.Errorf("flipp params not found. %v", err)
+	}
+	err = json.Unmarshal(params, &flippExtParams)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to extract flipp params. %v", err)
+	}
+
+	publisherUrl, err := url.Parse(request.Site.Page)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to parse site url. %v", err)
+	}
+	prebidRequest := PrebidRequest{
+		CreativeType:            &flippExtParams.CreativeType,
+		PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
+		RequestID:               &request.ID,
+		Height:                  &imp.Banner.Format[0].H,
+		Width:                   &imp.Banner.Format[0].W,
+	}
+
+	var contentCode string
+	if publisherUrl != nil {
+		contentCode = publisherUrl.Query().Get("flipp-content-code")
+	}
+	placement := Placement{
+		DivName: INLINE_DIV_NAME,
+		SiteID:  &flippExtParams.SiteID,
+		AdTypes: getAdTypes(flippExtParams.CreativeType),
+		ZoneIds: flippExtParams.ZoneIds,
+		Count:   &COUNT,
+		Prebid:  &prebidRequest,
+		Properties: &Properties{
+			ContentCode: &contentCode,
+		},
+	}
+
+	var userKey string
+	if request.User != nil && request.User.ID != "" {
+		userKey = request.User.ID
+	} else if flippExtParams.UserKey != "" {
+		userKey = flippExtParams.UserKey
+	} else {
+		uid, err := uuid.NewV4()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to generate user uuid. %v", err)
+		}
+		userKey = uid.String()
+	}
+
+	keywordsArray := strings.Split(request.Site.Keywords, ",")
+	var keywordsSlice []Keyword
+
+	for _, k := range keywordsArray {
+		keywordsSlice = append(keywordsSlice, Keyword(k))
+	}
+
+	campaignRequestBody := CampaignRequestBody{
+		Placements: []*Placement{&placement},
+		URL:        request.Site.Page,
+		Keywords:   keywordsSlice,
+		IP:         request.Device.IP,
+		User: &CampaignRequestBodyUser{
+			Key: &userKey,
+		},
+	}
+
+	adapterReq, err := a.makeRequest(request, campaignRequestBody)
+	if err != nil {
+		return nil, fmt.Errorf("Make request faile with err %v", err)
+	}
+
+	return adapterReq, nil
 }
 
 func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
