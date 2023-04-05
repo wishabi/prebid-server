@@ -18,7 +18,6 @@ import (
 
 var BANNER_TYPE = "banner"
 var INLINE_DIV_NAME = "inline"
-var PRODUCTION_NETWORK_ID = int64(10922)
 var AD_TYPES = []int64{4309, 641}
 var DTX_TYPES = []int64{5061}
 var COUNT = int64(1)
@@ -63,13 +62,12 @@ func (a *adapter) MakeRequests(request *openrtb2.BidRequest, reqInfo *adapters.E
 		}
 		contentCode := publisherUrl.Query().Get("flipp-content-code")
 		placement := Placement{
-			DivName:   INLINE_DIV_NAME,
-			SiteID:    &flippExtParams.SiteID,
-			NetworkID: PRODUCTION_NETWORK_ID,
-			AdTypes:   getAdTypes(flippExtParams.CreativeType),
-			ZoneIds:   flippExtParams.ZoneIds,
-			Count:     &COUNT,
-			Prebid:    &prebidRequest,
+			DivName: INLINE_DIV_NAME,
+			SiteID:  &flippExtParams.SiteID,
+			AdTypes: getAdTypes(flippExtParams.CreativeType),
+			ZoneIds: flippExtParams.ZoneIds,
+			Count:   &COUNT,
+			Prebid:  &prebidRequest,
 			Properties: &Properties{
 				ContentCode: &contentCode,
 			},
