@@ -207,8 +207,6 @@ func buildBid(decision *InlineModel) *openrtb2.Bid {
 		Price: *decision.Prebid.Cpm,
 		AdM:   *decision.Prebid.Creative,
 		ID:    fmt.Sprint(decision.AdID),
-		W:     decision.Contents[0].Data.Width,
-		H:     decision.Contents[0].Data.Height,
 		ImpID: fmt.Sprint(decision.AdvertiserID),
 	}
 	if len(decision.Contents) > 0 || decision.Contents[0] != nil || decision.Contents[0].Data != nil {
