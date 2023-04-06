@@ -16,13 +16,14 @@ import (
 	"github.com/prebid/prebid-server/openrtb_ext"
 )
 
-var BANNER_TYPE = "banner"
-var INLINE_DIV_NAME = "inline"
-var AD_TYPES = []int64{4309, 641}
-var DTX_TYPES = []int64{5061}
-var COUNT = int64(1)
-var FLIPP_BIDDER = "flipp"
-var DEFAULT_CURRENCY = "USD"
+const BannerType = "banner"
+const InlineDivName = "inline"
+const FlippBidder = "flipp"
+const DefaultCurrency = "USD"
+
+var Count = int64(1)
+var AdTypes = []int64{4309, 641}
+var DtxTypes = []int64{5061}
 
 type adapter struct {
 	endpoint string
@@ -63,7 +64,7 @@ func (a *adapter) makeRequest(request *openrtb2.BidRequest, campaignRequestBody 
 	headers.Add("Content-Type", "application/json")
 	headers.Add("User-Agent", request.Device.UA)
 	return &adapters.RequestData{
-		Method:  "POST",
+		Method:  http.MethodPost,
 		Uri:     a.endpoint,
 		Body:    campaignRequestBodyJSON,
 		Headers: headers,
@@ -85,25 +86,18 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 	if err != nil {
 		return nil, fmt.Errorf("Unable to parse site url. %v", err)
 	}
-	prebidRequest := PrebidRequest{
-		CreativeType:            &flippExtParams.CreativeType,
-		PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
-		RequestID:               &request.ID,
-		Height:                  &imp.Banner.Format[0].H,
-		Width:                   &imp.Banner.Format[0].W,
-	}
 
 	var contentCode string
 	if publisherUrl != nil {
 		contentCode = publisherUrl.Query().Get("flipp-content-code")
 	}
 	placement := Placement{
-		DivName: INLINE_DIV_NAME,
+		DivName: InlineDivName,
 		SiteID:  &flippExtParams.SiteID,
 		AdTypes: getAdTypes(flippExtParams.CreativeType),
 		ZoneIds: flippExtParams.ZoneIds,
-		Count:   &COUNT,
-		Prebid:  &prebidRequest,
+		Count:   &Count,
+		Prebid:  buildPrebidRequest(flippExtParams, request, imp),
 		Properties: &Properties{
 			ContentCode: &contentCode,
 		},
@@ -147,6 +141,23 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 	return adapterReq, nil
 }
 
+func buildPrebidRequest(flippExtParams openrtb_ext.ImpExtFlipp, request *openrtb2.BidRequest, imp openrtb2.Imp) *PrebidRequest {
+	var height int64
+	var width int64
+	if imp.Banner != nil && len(imp.Banner.Format) > 0 {
+		height = imp.Banner.Format[0].H
+		width = imp.Banner.Format[0].W
+	}
+	prebidRequest := PrebidRequest{
+		CreativeType:            &flippExtParams.CreativeType,
+		PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
+		RequestID:               &request.ID,
+		Height:                  &height,
+		Width:                   &width,
+	}
+	return &prebidRequest
+}
+
 func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.RequestData, responseData *adapters.ResponseData) (*adapters.BidderResponse, []error) {
 	if responseData.StatusCode == http.StatusNoContent {
 		return nil, nil
@@ -172,19 +183,11 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	}
 
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
-	bidResponse.Currency = DEFAULT_CURRENCY
+	bidResponse.Currency = DefaultCurrency
 	for _, decision := range campaignResponseBody.Decisions.Inline {
 		b := &adapters.TypedBid{
-			Bid: &openrtb2.Bid{
-				CrID:  fmt.Sprint(decision.CreativeID),
-				Price: *decision.Prebid.Cpm,
-				AdM:   *decision.Prebid.Creative,
-				ID:    fmt.Sprint(decision.AdID),
-				W:     decision.Contents[0].Data.Width,
-				H:     decision.Contents[0].Data.Height,
-				ImpID: fmt.Sprint(decision.AdvertiserID),
-			},
-			BidType: openrtb_ext.BidType(BANNER_TYPE),
+			Bid:     buildBid(decision),
+			BidType: openrtb_ext.BidType(BannerType),
 		}
 		bidResponse.Bids = append(bidResponse.Bids, b)
 	}
@@ -193,7 +196,28 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 
 func getAdTypes(creativeType string) []int64 {
 	if creativeType == "DTX" {
-		return DTX_TYPES
+		return DtxTypes
 	}
-	return AD_TYPES
+	return AdTypes
+}
+
+func buildBid(decision *InlineModel) *openrtb2.Bid {
+	bid := &openrtb2.Bid{
+		CrID:  fmt.Sprint(decision.CreativeID),
+		Price: *decision.Prebid.Cpm,
+		AdM:   *decision.Prebid.Creative,
+		ID:    fmt.Sprint(decision.AdID),
+		W:     decision.Contents[0].Data.Width,
+		H:     decision.Contents[0].Data.Height,
+		ImpID: fmt.Sprint(decision.AdvertiserID),
+	}
+	if len(decision.Contents) > 0 || decision.Contents[0] != nil || decision.Contents[0].Data != nil {
+		if decision.Contents[0].Data.Width != 0 {
+			bid.W = decision.Contents[0].Data.Width
+		}
+		if decision.Contents[0].Data.Width != 0 {
+			bid.H = decision.Contents[0].Data.Height
+		}
+	}
+	return bid
 }
