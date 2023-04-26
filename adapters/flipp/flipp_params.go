@@ -16,6 +16,7 @@ type PrebidRequest struct {
 	PublisherNameIdentifier *string `json:"publisherNameIdentifier"`
 	RequestID               *string `json:"requestId"`
 	Width                   *int64  `json:"width"`
+	StartCompact            bool    `json:"startCompact"`
 }
 
 type Placement struct {

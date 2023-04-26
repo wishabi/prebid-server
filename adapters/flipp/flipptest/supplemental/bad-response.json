@@ -56,7 +56,8 @@
                          "height":1800,
                          "publisherNameIdentifier":"wishabi-test-publisher",
                          "requestId":"test-request-id",
-                         "width":300
+                         "width":300,
+                         "startCompact": true
                       },
                       "properties":{
                          "contentCode":"publisher-test"

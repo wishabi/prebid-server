@@ -6,4 +6,5 @@ type ImpExtFlipp struct {
 	SiteID                  int64   `json:"siteId"`
 	ZoneIds                 []int64 `json:"zoneIds,omitempty"`
 	UserKey                 string  `json:"userKey,omitempty"`
+	StartCompact            *bool   `json:"startCompact,omitempty"`
 }
