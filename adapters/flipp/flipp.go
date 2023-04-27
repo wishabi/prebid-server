@@ -144,13 +144,16 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 func buildPrebidRequest(flippExtParams openrtb_ext.ImpExtFlipp, request *openrtb2.BidRequest, imp openrtb2.Imp) *PrebidRequest {
 	var height int64
 	var width int64
-	var startCompact = true
 	if imp.Banner != nil && len(imp.Banner.Format) > 0 {
 		height = imp.Banner.Format[0].H
 		width = imp.Banner.Format[0].W
 	}
-	if flippExtParams.StartCompact != nil && !*flippExtParams.StartCompact {
-		startCompact = false
+	var startCompact = true
+	if flippExtParams.Options != nil && flippExtParams.Options.StartCompact != nil {
+		startCompact = *flippExtParams.Options.StartCompact
+	}
+	options := PrebidRequestOptions{
+		StartCompact: startCompact,
 	}
 	prebidRequest := PrebidRequest{
 		CreativeType:            &flippExtParams.CreativeType,
@@ -158,7 +161,7 @@ func buildPrebidRequest(flippExtParams openrtb_ext.ImpExtFlipp, request *openrtb
 		RequestID:               &request.ID,
 		Height:                  &height,
 		Width:                   &width,
-		StartCompact:            startCompact,
+		Options:                 options,
 	}
 	return &prebidRequest
 }

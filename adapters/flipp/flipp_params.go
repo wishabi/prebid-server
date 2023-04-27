@@ -10,13 +10,17 @@ type Properties struct {
 	ContentCode *string `json:"contentCode,omitempty"`
 }
 
+type PrebidRequestOptions struct {
+	StartCompact bool `json:"startCompact"`
+}
+
 type PrebidRequest struct {
-	CreativeType            *string `json:"creativeType"`
-	Height                  *int64  `json:"height"`
-	PublisherNameIdentifier *string `json:"publisherNameIdentifier"`
-	RequestID               *string `json:"requestId"`
-	Width                   *int64  `json:"width"`
-	StartCompact            bool    `json:"startCompact"`
+	CreativeType            *string              `json:"creativeType"`
+	Height                  *int64               `json:"height"`
+	PublisherNameIdentifier *string              `json:"publisherNameIdentifier"`
+	RequestID               *string              `json:"requestId"`
+	Width                   *int64               `json:"width"`
+	Options                 PrebidRequestOptions `json:"options"`
 }
 
 type Placement struct {

@@ -44,15 +44,25 @@ var validParams = []string{
 		"publisherNameIdentifier": "wishabi-test-publisher",
 		"creativeType": "NativeX",
 		"siteId": 1243066,
-		"zoneIds": [285431],
-		"startCompact": true
+		"options": {}
 	}`,
 	`{
 		"publisherNameIdentifier": "wishabi-test-publisher",
 		"creativeType": "NativeX",
 		"siteId": 1243066,
 		"zoneIds": [285431],
-		"startCompact": false
+		"options": {
+			"startCompact": true
+		}
+	}`,
+	`{
+		"publisherNameIdentifier": "wishabi-test-publisher",
+		"creativeType": "NativeX",
+		"siteId": 1243066,
+		"zoneIds": [285431],
+		"options": {
+			"startCompact": false
+		}
 	}`,
 }
 
@@ -94,5 +104,12 @@ var invalidParams = []string{
 		"publisherNameIdentifier": "wishabi-test-publisher",
 		"siteId": 1243066,
 		"startCompact": "true"
+	}`,
+	`{
+		"publisherNameIdentifier": "wishabi-test-publisher",
+		"siteId": 1243066,
+		"options": {
+			"startCompact": "true"
+		}
 	}`,
 }

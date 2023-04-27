@@ -58,7 +58,9 @@
                              "publisherNameIdentifier":"wishabi-test-publisher",
                              "requestId":"test-request-id",
                              "width":300,
-                             "startCompact": true
+                             "options": {
+                                "startCompact": true
+                             }
                           },
                           "properties":{
                              "contentCode":"publisher-test"
