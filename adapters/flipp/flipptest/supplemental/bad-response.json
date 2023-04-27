@@ -56,10 +56,7 @@
                          "height":1800,
                          "publisherNameIdentifier":"wishabi-test-publisher",
                          "requestId":"test-request-id",
-                         "width":300,
-                         "options": {
-                            "startCompact": true
-                         }
+                         "width":300
                       },
                       "properties":{
                          "contentCode":"publisher-test"
@@ -67,7 +64,10 @@
                       "siteId":1.243066e+06,
                       "zoneIds":[
                          285431
-                      ]
+                      ],
+                      "options": {
+                         "startCompact": true
+                      }
                    }
                 ],
                 "url":"http://www.example.com/test?flipp-content-code=publisher-test",

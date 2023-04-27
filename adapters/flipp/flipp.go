@@ -91,6 +91,15 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 	if publisherUrl != nil {
 		contentCode = publisherUrl.Query().Get("flipp-content-code")
 	}
+
+	var startCompact = true
+	if flippExtParams.Options != nil && flippExtParams.Options.StartCompact != nil {
+		startCompact = *flippExtParams.Options.StartCompact
+	}
+	options := Options{
+		StartCompact: &startCompact,
+	}
+
 	placement := Placement{
 		DivName: InlineDivName,
 		SiteID:  &flippExtParams.SiteID,
@@ -101,6 +110,7 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 		Properties: &Properties{
 			ContentCode: &contentCode,
 		},
+		Options: &options,
 	}
 
 	var userKey string
@@ -148,20 +158,12 @@ func buildPrebidRequest(flippExtParams openrtb_ext.ImpExtFlipp, request *openrtb
 		height = imp.Banner.Format[0].H
 		width = imp.Banner.Format[0].W
 	}
-	var startCompact = true
-	if flippExtParams.Options != nil && flippExtParams.Options.StartCompact != nil {
-		startCompact = *flippExtParams.Options.StartCompact
-	}
-	options := PrebidRequestOptions{
-		StartCompact: startCompact,
-	}
 	prebidRequest := PrebidRequest{
 		CreativeType:            &flippExtParams.CreativeType,
 		PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
 		RequestID:               &request.ID,
 		Height:                  &height,
 		Width:                   &width,
-		Options:                 options,
 	}
 	return &prebidRequest
 }

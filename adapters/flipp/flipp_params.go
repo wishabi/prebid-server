@@ -10,17 +10,16 @@ type Properties struct {
 	ContentCode *string `json:"contentCode,omitempty"`
 }
 
-type PrebidRequestOptions struct {
-	StartCompact bool `json:"startCompact"`
+type Options struct {
+	StartCompact *bool `json:"startCompact"`
 }
 
 type PrebidRequest struct {
-	CreativeType            *string              `json:"creativeType"`
-	Height                  *int64               `json:"height"`
-	PublisherNameIdentifier *string              `json:"publisherNameIdentifier"`
-	RequestID               *string              `json:"requestId"`
-	Width                   *int64               `json:"width"`
-	Options                 PrebidRequestOptions `json:"options"`
+	CreativeType            *string `json:"creativeType"`
+	Height                  *int64  `json:"height"`
+	PublisherNameIdentifier *string `json:"publisherNameIdentifier"`
+	RequestID               *string `json:"requestId"`
+	Width                   *int64  `json:"width"`
 }
 
 type Placement struct {
@@ -32,6 +31,7 @@ type Placement struct {
 	Properties *Properties    `json:"properties,omitempty"`
 	SiteID     *int64         `json:"siteId"`
 	ZoneIds    []int64        `json:"zoneIds"`
+	Options    *Options       `json:"options,omitempty"`
 }
 
 type CampaignRequestBody struct {
