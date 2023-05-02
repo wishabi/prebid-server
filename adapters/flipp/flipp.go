@@ -92,14 +92,6 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 		contentCode = publisherUrl.Query().Get("flipp-content-code")
 	}
 
-	var startCompact = true
-	if flippExtParams.Options != nil && flippExtParams.Options.StartCompact != nil {
-		startCompact = *flippExtParams.Options.StartCompact
-	}
-	options := Options{
-		StartCompact: &startCompact,
-	}
-
 	placement := Placement{
 		DivName: InlineDivName,
 		SiteID:  &flippExtParams.SiteID,
@@ -110,7 +102,7 @@ func (a *adapter) processImp(request *openrtb2.BidRequest, imp openrtb2.Imp) (*a
 		Properties: &Properties{
 			ContentCode: &contentCode,
 		},
-		Options: &options,
+		Options: flippExtParams.Options,
 	}
 
 	var userKey string

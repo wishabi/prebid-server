@@ -29,7 +29,10 @@
                                 "publisherNameIdentifier": "wishabi-test-publisher",
                                 "creativeType": "NativeX",
                                 "siteId": 1243066,
-                                "zoneIds": [285431]
+                                "zoneIds": [285431],
+                                "options": {
+                                   "startCompact": false
+                                }
                         }
                     }
                 }
@@ -66,7 +69,7 @@
                          285431
                       ],
                       "options": {
-                         "startCompact": true
+                         "startCompact": false
                       }
                    }
                 ],
