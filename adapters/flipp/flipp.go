@@ -188,7 +188,7 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	bidResponse.Currency = DefaultCurrency
 	for _, decision := range campaignResponseBody.Decisions.Inline {
 		b := &adapters.TypedBid{
-			Bid:     buildBid(decision),
+			Bid:     buildBid(decision, request.Imp[0].ID),
 			BidType: openrtb_ext.BidType(BannerType),
 		}
 		bidResponse.Bids = append(bidResponse.Bids, b)
@@ -203,13 +203,13 @@ func getAdTypes(creativeType string) []int64 {
 	return AdTypes
 }
 
-func buildBid(decision *InlineModel) *openrtb2.Bid {
+func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
 	bid := &openrtb2.Bid{
 		CrID:  fmt.Sprint(decision.CreativeID),
 		Price: *decision.Prebid.Cpm,
 		AdM:   *decision.Prebid.Creative,
 		ID:    fmt.Sprint(decision.AdID),
-		ImpID: fmt.Sprint(decision.AdvertiserID),
+		ImpID: impId,
 	}
 	if len(decision.Contents) > 0 || decision.Contents[0] != nil || decision.Contents[0].Data != nil {
 		if decision.Contents[0].Data.Width != 0 {
