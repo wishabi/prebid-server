@@ -159,7 +159,7 @@
                 {
                     "bid": {
                         "id": "183599115",
-                        "impid": "1988027",
+                        "impid": "test-imp-id",
                         "price": 12.34,
                         "adm": "creativeContent",
                         "crid": "81325690",
