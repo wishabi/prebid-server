@@ -153,7 +153,7 @@ func buildPrebidRequest(flippExtParams openrtb_ext.ImpExtFlipp, request *openrtb
 	prebidRequest := PrebidRequest{
 		CreativeType:            &flippExtParams.CreativeType,
 		PublisherNameIdentifier: &flippExtParams.PublisherNameIdentifier,
-		RequestID:               &request.ID,
+		RequestID:               &imp.ID,
 		Height:                  &height,
 		Width:                   &width,
 	}
@@ -187,11 +187,15 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
 	bidResponse.Currency = DefaultCurrency
 	for _, imp := range request.Imp {
-		b := &adapters.TypedBid{
-			Bid:     buildBid(campaignResponseBody.Decisions.Inline[0], imp.ID),
-			BidType: openrtb_ext.BidType(BannerType),
+		for _, decision := range campaignResponseBody.Decisions.Inline {
+			if *decision.Prebid.RequestID == imp.ID {
+				b := &adapters.TypedBid{
+					Bid:     buildBid(decision, imp.ID),
+					BidType: openrtb_ext.BidType(BannerType),
+				}
+				bidResponse.Bids = append(bidResponse.Bids, b)
+			}
 		}
-		bidResponse.Bids = append(bidResponse.Bids, b)
 	}
 	return bidResponse, nil
 }
