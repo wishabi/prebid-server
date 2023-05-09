@@ -20,7 +20,6 @@ const BannerType = "banner"
 const InlineDivName = "inline"
 const FlippBidder = "flipp"
 const DefaultCurrency = "USD"
-const DefaultCompactHeight = 600
 
 var Count = int64(1)
 var AdTypes = []int64{4309, 641}
@@ -200,7 +199,6 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	}
 	return bidResponse, nil
 }
-
 
 func getAdTypes(creativeType string) []int64 {
 	if creativeType == "DTX" {
