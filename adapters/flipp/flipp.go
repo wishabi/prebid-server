@@ -20,6 +20,7 @@ const BannerType = "banner"
 const InlineDivName = "inline"
 const FlippBidder = "flipp"
 const DefaultCurrency = "USD"
+const DefaultCompactHeight = 600
 
 var Count = int64(1)
 var AdTypes = []int64{4309, 641}
@@ -27,6 +28,10 @@ var DtxTypes = []int64{5061}
 
 type adapter struct {
 	endpoint string
+}
+
+type ImpWithParams struct {
+	Bidder openrtb_ext.ImpExtFlipp `json:"bidder"`
 }
 
 // Builder builds a new instance of the Foo adapter for the given bidder with the given config.
@@ -187,13 +192,32 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
 	bidResponse.Currency = DefaultCurrency
 	for _, imp := range request.Imp {
+		var extParams ImpWithParams
+		if err := json.Unmarshal(imp.Ext, &extParams); err != nil {
+			fmt.Println("Error:", err)
+			return nil, []error{err}
+		}
 		b := &adapters.TypedBid{
-			Bid:     buildBid(campaignResponseBody.Decisions.Inline[0], imp.ID),
+			Bid:     buildBid(campaignResponseBody.Decisions.Inline[0], imp.ID, &extParams.Bidder),
 			BidType: openrtb_ext.BidType(BannerType),
 		}
 		bidResponse.Bids = append(bidResponse.Bids, b)
 	}
 	return bidResponse, nil
+}
+
+func isStartCompactTrue(params *openrtb_ext.ImpExtFlipp) bool {
+	if params.Options == nil {
+		return false
+	}
+
+	startCompact, exists := (*params.Options)["startCompact"]
+	if !exists {
+		return false
+	}
+
+	isBool, isTrue := startCompact.(bool)
+	return isBool && isTrue
 }
 
 func getAdTypes(creativeType string) []int64 {
@@ -203,7 +227,7 @@ func getAdTypes(creativeType string) []int64 {
 	return AdTypes
 }
 
-func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
+func buildBid(decision *InlineModel, impId string, params *openrtb_ext.ImpExtFlipp) *openrtb2.Bid {
 	bid := &openrtb2.Bid{
 		CrID:  fmt.Sprint(decision.CreativeID),
 		Price: *decision.Prebid.Cpm,
@@ -215,8 +239,11 @@ func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
 		if decision.Contents[0].Data.Width != 0 {
 			bid.W = decision.Contents[0].Data.Width
 		}
-		if decision.Contents[0].Data.Width != 0 {
+		if decision.Contents[0].Data.Height != 0 {
 			bid.H = decision.Contents[0].Data.Height
+			if (isStartCompactTrue(params)) {
+				bid.H = DefaultCompactHeight
+			}
 		}
 	}
 	return bid
