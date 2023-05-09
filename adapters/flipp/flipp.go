@@ -198,7 +198,6 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 				if err := json.Unmarshal(imp.Ext, &extParams); err != nil {
 					fmt.Println("Error:", err)
 					return nil, []error{err}
-				}
 				b := &adapters.TypedBid{
 					Bid:     buildBid(decision, imp.ID, &extParams.Bidder),
 					BidType: openrtb_ext.BidType(BannerType),
