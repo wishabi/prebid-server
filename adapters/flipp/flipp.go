@@ -219,7 +219,32 @@ func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
 		if decision.Contents[0].Data.Width != 0 {
 			bid.W = decision.Contents[0].Data.Width
 		}
-		bid.H = 0
+		customDataInterface := decision.Contents[0].Data.CustomData
+		customDataMap, ok := customDataInterface.(map[string]interface{})
+		var defaultStandardHeight int64 = 2400
+		var defaultCompactHeight int64 = 600
+		var flippExtParams openrtb_ext.ImpExtFlipp
+		if flippExtParams.Options.StartCompact {
+			if ok { // check if customDataMap exists and startCompact is true
+				if height, exists := customDataMap["compactHeight"].(int64); exists {
+					bid.H = height
+				} else {
+					bid.H = defaultCompactHeight
+				}
+			} else {
+				bid.H = defaultCompactHeight
+			}
+		} else { // startCompact is false
+			if ok { // customDataMap exists
+				if height, exists := customDataMap["standardHeight"].(int64); exists {
+					bid.H = height
+				} else {
+					bid.H = defaultStandardHeight
+				}
+			} else {
+				bid.H = defaultStandardHeight
+			}
+		}
 	}
 	return bid
 }
