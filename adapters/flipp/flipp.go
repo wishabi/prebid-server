@@ -20,12 +20,17 @@ const (
 	inlineDivName   = "inline"
 	flippBidder     = "flipp"
 	defaultCurrency = "USD"
+	defaultStandardHeight int64 = 2400
+	defaultCompactHeight int64 = 600
 )
 
 var (
 	count    int64 = 1
 	adTypes        = []int64{4309, 641}
 	dtxTypes       = []int64{5061}
+	defaultHeight int64
+	flippExtParams openrtb_ext.ImpExtFlipp
+	key string
 )
 
 type adapter struct {
@@ -221,28 +226,20 @@ func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
 		}
 		customDataInterface := decision.Contents[0].Data.CustomData
 		customDataMap, ok := customDataInterface.(map[string]interface{})
-		var defaultStandardHeight int64 = 2400
-		var defaultCompactHeight int64 = 600
-		var flippExtParams openrtb_ext.ImpExtFlipp
 		if flippExtParams.Options.StartCompact {
-			if ok { // check if customDataMap exists and startCompact is true
-				if height, exists := customDataMap["compactHeight"].(int64); exists {
-					bid.H = height
-				} else {
-					bid.H = defaultCompactHeight
-				}
+			defaultHeight = defaultCompactHeight
+		} else {
+			defaultHeight = defaultStandardHeight
+		}
+		bid.H = defaultHeight
+		if ok { // customDataMap exists
+			if flippExtParams.Options.StartCompact {
+				key = "compactHeight"
 			} else {
-				bid.H = defaultCompactHeight
+				key = "standardHeight"
 			}
-		} else { // startCompact is false
-			if ok { // customDataMap exists
-				if height, exists := customDataMap["standardHeight"].(int64); exists {
-					bid.H = height
-				} else {
-					bid.H = defaultStandardHeight
-				}
-			} else {
-				bid.H = defaultStandardHeight
+			if height, exists := customDataMap[key].(int64); exists {
+				bid.H = height
 			}
 		}
 	}
