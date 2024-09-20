@@ -20,21 +20,21 @@ import (
 )
 
 const (
-	bannerType      = "banner"
-	inlineDivName   = "inline"
-	flippBidder     = "flipp"
-	defaultCurrency = "USD"
+	bannerType                  = "banner"
+	inlineDivName               = "inline"
+	flippBidder                 = "flipp"
+	defaultCurrency             = "USD"
 	defaultStandardHeight int64 = 2400
-	defaultCompactHeight int64 = 600
+	defaultCompactHeight  int64 = 600
 )
 
 var (
-	count    int64 = 1
-	adTypes        = []int64{4309, 641}
-	dtxTypes       = []int64{5061}
-	defaultHeight int64
+	count          int64 = 1
+	adTypes              = []int64{4309, 641}
+	dtxTypes             = []int64{5061}
+	defaultHeight  int64
 	flippExtParams openrtb_ext.ImpExtFlipp
-	key string
+	key            string
 )
 
 type adapter struct {
