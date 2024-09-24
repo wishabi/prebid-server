@@ -32,7 +32,6 @@ var (
 	count          int64 = 1
 	adTypes              = []int64{4309, 641}
 	dtxTypes             = []int64{5061}
-	defaultHeight  int64
 	flippExtParams openrtb_ext.ImpExtFlipp
 	key            string
 )
@@ -247,13 +246,12 @@ func buildBid(decision *InlineModel, impId string, flippExtParams openrtb_ext.Im
 		customDataMap := customDataInterface.(map[string]interface{})
 
 		if flippExtParams.Options.StartCompact {
-			defaultHeight = defaultCompactHeight
+			bid.H = defaultCompactHeight
 			key = "compactHeight"
 		} else {
-			defaultHeight = defaultStandardHeight
+			bid.H = defaultStandardHeight
 			key = "standardHeight"
 		}
-		bid.H = defaultHeight
 		if value, exists := customDataMap[key]; exists {
 			if floatVal, ok := value.(float64); ok {
 				bid.H = int64(floatVal)

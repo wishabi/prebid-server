@@ -20,7 +20,7 @@
                     "format": [
                         {
                             "w": 300,
-                            "h": 700
+                            "h": 1800
                         }
                     ]
                 },
@@ -57,7 +57,7 @@
                           "divName":"inline",
                           "prebid":{
                              "creativeType":"DTX",
-                             "height":700,
+                             "height":1800,
                              "publisherNameIdentifier":"wishabi-test-publisher",
                              "requestId":"test-imp-id",
                              "width":300
@@ -100,7 +100,7 @@
                                                 "standardHeight": 900,
                                                 "compactHeight": 700
                                             },
-                                            "height": 700,
+                                            "height": 1800,
                                             "width": 300
                                         },
                                         "type": "raw"
