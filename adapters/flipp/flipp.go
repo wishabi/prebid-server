@@ -203,10 +203,18 @@ func (a *adapter) MakeBids(request *openrtb2.BidRequest, requestData *adapters.R
 	bidResponse := adapters.NewBidderResponseWithBidsCapacity(len(request.Imp))
 	bidResponse.Currency = defaultCurrency
 	for _, imp := range request.Imp {
+		params, _, _, err := jsonparser.Get(imp.Ext, "bidder")
+		if err != nil {
+			return nil, []error{fmt.Errorf("flipp params not found. %v", err)}
+		}
+		err = json.Unmarshal(params, &flippExtParams)
+		if err != nil {
+			return nil, []error{fmt.Errorf("unable to extract flipp params. %v", err)}
+		}
 		for _, decision := range campaignResponseBody.Decisions.Inline {
 			if *decision.Prebid.RequestID == imp.ID {
 				b := &adapters.TypedBid{
-					Bid:     buildBid(decision, imp.ID),
+					Bid:     buildBid(decision, imp.ID, flippExtParams),
 					BidType: openrtb_ext.BidType(bannerType),
 				}
 				bidResponse.Bids = append(bidResponse.Bids, b)
@@ -223,7 +231,7 @@ func getAdTypes(creativeType string) []int64 {
 	return adTypes
 }
 
-func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
+func buildBid(decision *InlineModel, impId string, flippExtParams openrtb_ext.ImpExtFlipp) *openrtb2.Bid {
 	bid := &openrtb2.Bid{
 		CrID:  fmt.Sprint(decision.CreativeID),
 		Price: *decision.Prebid.Cpm,
@@ -236,21 +244,19 @@ func buildBid(decision *InlineModel, impId string) *openrtb2.Bid {
 			bid.W = decision.Contents[0].Data.Width
 		}
 		customDataInterface := decision.Contents[0].Data.CustomData
-		customDataMap, ok := customDataInterface.(map[string]interface{})
+		customDataMap := customDataInterface.(map[string]interface{})
+
 		if flippExtParams.Options.StartCompact {
 			defaultHeight = defaultCompactHeight
+			key = "compactHeight"
 		} else {
 			defaultHeight = defaultStandardHeight
+			key = "standardHeight"
 		}
 		bid.H = defaultHeight
-		if ok { // customDataMap exists
-			if flippExtParams.Options.StartCompact {
-				key = "compactHeight"
-			} else {
-				key = "standardHeight"
-			}
-			if height, exists := customDataMap[key].(int64); exists {
-				bid.H = height
+		if value, exists := customDataMap[key]; exists {
+			if floatVal, ok := value.(float64); ok {
+				bid.H = int64(floatVal)
 			}
 		}
 	}

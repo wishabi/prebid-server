@@ -26,7 +26,7 @@
                     "format": [
                         {
                             "w": 300,
-                            "h": 2400
+                            "h": 900
                         }
                     ]
                 },
@@ -37,7 +37,7 @@
                                 "siteId": 1243066,
                                 "zoneIds": [285431],
                                 "options": {
-                                   "startCompact": true
+                                   "startCompact": false
                                 },
                                 "userKey": "abc123"
                         }
@@ -65,7 +65,7 @@
                           "divName":"inline",
                           "prebid":{
                              "creativeType":"NativeX",
-                             "height":2400,
+                             "height":900,
                              "publisherNameIdentifier":"wishabi-test-publisher",
                              "requestId":"test-imp-id",
                              "width":300
@@ -78,7 +78,6 @@
                              285431
                           ],
                           "options": {
-                             "startCompact": true
                           }
                        }
                     ],
@@ -104,9 +103,11 @@
                                         "data": {
                                             "customData": {
                                                 "campaignConfigUrl": "https://campaign-config.flipp.com/dist-campaign-admin/215",
-                                                "campaignNameIdentifier": "US Grocery Demo (Kroger)"
+                                                "campaignNameIdentifier": "US Grocery Demo (Kroger)",
+                                                "standardHeight": 900,
+                                                "compactHeight": 700
                                             },
-                                            "height": 2400,
+                                            "height": 900,
                                             "width": 300
                                         },
                                         "type": "raw"
@@ -114,7 +115,7 @@
                                 ],
                                 "creativeId": 81325690,
                                 "flightId": 175421795,
-                                "height": 2400,
+                                "height": 900,
                                 "impressionUrl": "https://e-11090.adzerk.net/i.gif?e=eyJ2IjoiMS4xMSIsImF2IjoxOTg4MDI3LCJhdCI6NDMwOSwiYnQiOjAsImNtIjo2MzI4NTM5MiwiY2giOjU4MDgxLCJjayI6e30sImNyIjo4MTMyNTY5MCwiZGkiOiJiOTg3MGNkYTA5MTU0NDlmOTkwZGNkZTNmNjYyNGNhMyIsImRqIjowLCJpaSI6IjJmNjYwMjMyODBmYjQ4NTRiYTY0YzFlYzA1ZDU5MTNiIiwiZG0iOjMsImZjIjoxODM1OTkxMTUsImZsIjoxNzU0MjE3OTUsImlwIjoiMTQyLjE4MS41OC41MiIsIm53IjoxMDkyMiwicGMiOjAsIm9wIjowLCJlYyI6MCwiZ20iOjAsImVwIjpudWxsLCJwciI6MjMyNjk5LCJydCI6MywicnMiOjUwMCwic2EiOiIzNCIsInNiIjoiaS0wNDZjMWNlNWRjYmExMTVjNSIsInNwIjozNzIzMDU1LCJzdCI6MTI0MzA2NiwidWsiOiJkOTU1N2Q2NS1kNWI5LTQyOTItYjg2My0xNGEyOTcyNTk3ZjQiLCJ6biI6Mjg1NDMxLCJ0cyI6MTY4MDU1NTc4MzkyMywicG4iOiJpbmxpbmUiLCJnYyI6dHJ1ZSwiZ0MiOnRydWUsImdzIjoibm9uZSIsInR6IjoiQW1lcmljYS9OZXdfWW9yayIsImJhIjoxLCJmcSI6MH0&s=Qce4_IohtESeNA_sB71Qjb4TouY",
                                 "prebid": {
                                     "cpm": 12.34,
@@ -173,7 +174,7 @@
                         "adm": "creativeContent",
                         "crid": "81325690",
                         "w": 300,
-                        "h": 2400
+                        "h": 900
                     },
                     "type": "banner"
                 }
