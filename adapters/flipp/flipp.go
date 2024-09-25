@@ -33,7 +33,7 @@ var (
 	adTypes              = []int64{4309, 641}
 	dtxTypes             = []int64{5061}
 	flippExtParams openrtb_ext.ImpExtFlipp
-	key            string
+	customDataKey  string
 )
 
 type adapter struct {
@@ -245,14 +245,13 @@ func buildBid(decision *InlineModel, impId string, flippExtParams openrtb_ext.Im
 		customDataInterface := decision.Contents[0].Data.CustomData
 		customDataMap := customDataInterface.(map[string]interface{})
 
+		bid.H = defaultStandardHeight
+		customDataKey = "standardHeight"
 		if flippExtParams.Options.StartCompact {
 			bid.H = defaultCompactHeight
-			key = "compactHeight"
-		} else {
-			bid.H = defaultStandardHeight
-			key = "standardHeight"
+			customDataKey = "compactHeight"
 		}
-		if value, exists := customDataMap[key]; exists {
+		if value, exists := customDataMap[customDataKey]; exists {
 			if floatVal, ok := value.(float64); ok {
 				bid.H = int64(floatVal)
 			}
